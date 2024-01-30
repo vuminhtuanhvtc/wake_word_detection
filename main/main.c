@@ -167,7 +167,6 @@ static void http_rest_with_url(void)
     esp_http_client_cleanup(client);
 }
 
-
 void feed_Task(void *arg)
 {
     esp_afe_sr_data_t *afe_data = arg;
@@ -221,6 +220,21 @@ void detect_Task(void *arg)
 
 void app_main()
 {
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
+     * Read "Establishing Wi-Fi or Ethernet Connection" section in
+     * examples/protocols/README.md for more information about this function.
+     */
+    ESP_ERROR_CHECK(example_connect());
+    ESP_LOGI(TAG, "Connected to AP, begin http example");
     ESP_ERROR_CHECK(esp_board_init(16000, 1, 16));
     // ESP_ERROR_CHECK(esp_sdcard_init("/sdcard", 10));
 
